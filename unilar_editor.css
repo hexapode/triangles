@@ -1,0 +1,8 @@
+/* style loaded only in editor. */
+button.hidden {
+  display: none;
+}
+
+body {
+	font-family : 'Roboto Condensed', Arial;
+}

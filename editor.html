@@ -1,0 +1,159 @@
+<!--
+  This expression let you add triangles in top of an image (see : urturn.com/pld/triangle)
+-->
+<head>
+	<!-- We load some font -->
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+ <!-- 
+   We create a basic HTML : markup
+   An info that will be usefull to display info to user (such as load image, click on image...) 
+  -->
+<div id='info' style='width : 100%; position:absolute; top : 0px; left : 0px; padding  :0px; margin : 0px; margin-bottom : 3px; height : 30px; font-size : 25px; text-align : center'>
+	Loading Image...
+</div>
+
+
+<!--
+  Here is the expression script 
+-->
+<script type="text/javascript">
+
+// Called when expression is ready to use.
+UT.Expression.ready(function(expression){
+	(
+		function(expression, document, window) {
+
+
+			// Some variables we wil use
+			var image = null;
+			var canvas = document.createElement('canvas');
+			var ctx = null;
+			var availableWidth = expression.node.offsetWidth;
+			var WIDTH = 0;
+			var HEIGHT = 0;	
+			var data = null;
+			var EXPLODED = 0;
+
+			function initialize(img)
+			{
+				if (!img){
+					expression.dialog('image', {size : {width  : 500, height : 400, flexRatio : true, adaptUI : true}}, initialize);
+					return;
+				}
+
+				var ratio = availableWidth / img.descriptor._center.DEST_W;
+				WIDTH = availableWidth;
+				HEIGHT = img.descriptor._center.DEST_H * ratio | 0;
+				expression.storage.height = img.descriptor._center.DEST_H;
+				expression.storage.width = img.descriptor._center.DEST_W;
+				canvas.style.width = WIDTH;
+				canvas.style.height = HEIGHT;
+				canvas.width = WIDTH;
+				canvas.height = HEIGHT;
+				canvas.style.position = 'absolute';
+				canvas.style.left = '0px';
+				canvas.style.top = '30px';
+				expression.node.appendChild(canvas);
+				expression.resize({height : HEIGHT + 30});
+				expression.storage.ratio = ratio;
+				ctx = canvas.getContext('2d');
+				image = new Image();
+				image.src = img.url;
+				image.onload = imageLoaded;
+			}
+
+			
+			function exploded(x, y)
+ 			{
+ 				if (!EXPLODED)
+ 				{
+ 					recu((x / 10 | 0) * 10, (y / 16 | 0) * 16, 0);
+ 					// we build a UT image. So it wil get stored correctly!
+ 					var img = new UT.Image(canvas.toDataURL());
+ 					save(img);
+ 				}
+ 			}
+
+ 			// used to save image
+ 			function save(img)
+ 			{
+ 				console.log('save Image', img);
+ 				expression.storage.image = img;
+ 				expression.storage.save();
+ 				expression.valid(true);
+ 			}
+
+ 			function distance(x,y,dx,dy)
+ 			{
+ 				return Math.sqrt((x - dx) * (x - dx) + (y - dy) * (y - dy));
+ 			}
+
+ 			function recu(x,y,g)
+ 			{
+ 				if (Math.random() > g / 6)
+		 			recu(x + 10, y, g + 1);
+		 		if (Math.random() > g / 6)
+		 			recu(x - 10, y, g + 1);
+ 				if (Math.random() > g / 6)
+		 			recu(x, y + 16, g + 1);
+		 		if (Math.random() > g / 6)
+		 			recu(x, y - 16, g + 1);
+
+ 				var cx  = x;
+ 				var cy = y;
+
+ 				if (cx < 0)
+ 					cx = 0;
+ 				if (cx >= WIDTH)
+ 					cx = WIDTH - 1;
+ 				if (cy < 0)
+ 					cy = 0;
+ 				if (cy >= HEIGHT)
+ 						cx = HEIGHT - 1;
+
+ 				ctx.fillStyle = 'rgba(' + data[(cx + cy * WIDTH) * 4] + ',' + data[(cx + cy * WIDTH) * 4 + 1] + ',' + data[(cx + cy * WIDTH) * 4 + 2] + ',1.0)';
+ 				
+ 				ctx.beginPath();
+ 				if ((x / 10 + y / 16) % 2 == 0) {	
+ 					ctx.moveTo(x - 10, y + 8);
+ 					ctx.lineTo(x, y - 8);
+ 					ctx.lineTo(x + 10, y + 8);
+ 					ctx.lineTo(x - 10, y + 8);
+ 				}
+ 				else
+ 				{
+					ctx.moveTo(x - 10, y - 8);
+ 					ctx.lineTo(x, y + 8);
+ 					ctx.lineTo(x + 10, y - 8);
+ 					ctx.lineTo(x - 10, y - 8);
+ 				}
+ 				ctx.fill();
+ 			}
+
+			function click(event)
+			{
+				exploded(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+			}
+
+			function imageLoaded()
+			{
+				document.getElementById('info').innerHTML = 'Click on image';	
+				ctx.drawImage(image, 0,0,WIDTH, HEIGHT);
+				canvas.addEventListener('click', click);
+				canvas.addEventListener('touch', click);
+				console.log('LOCATION', window.location);
+				data = ctx.getImageData(0,0,WIDTH,HEIGHT).data;
+
+			}
+
+			// We ask for an image of variable ratio.
+			expression.dialog('image', {size : {width  : 500, height : 800, flexRatio : true, adaptUI : true}}, initialize);
+
+		}
+	)(expression, document, window);
+});
+</script>
+</body>

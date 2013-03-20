@@ -1,0 +1,18 @@
+{
+  "title":"Triangles",
+  "system_name":"triangle",
+  "accepted_media_types": {"image":false},
+  "static_view": true,
+  "description" : "Because we all love triangles.",
+  "plateforms" : "desktop",
+  "version":"2.0.24",
+  "api_version":"0.6.1-rc2",
+  "dependencies": [{
+    "type":"stylesheet",
+    "path":"unilar.css"
+  },{
+    "type":"stylesheet",
+    "path":"unilar_editor.css",
+    "context":"editor"
+  }]
+}

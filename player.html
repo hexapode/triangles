@@ -1,0 +1,23 @@
+<script type="text/javascript">
+  // Bootstrap you expression editor
+  UT.Expression.ready(function(expression){
+  	
+  	var availableWidth = expression.node.offsetWidth;
+  	var HEIGHT = expression.storage.height * (availableWidth / expression.storage.width) | 0;
+  	expression.resize({height: HEIGHT});
+
+  	var img = document.createElement('img');
+  	if (!expression.storage.image)
+  		return;
+  	img.src = expression.storage.image.url;
+  	img.style.width = availableWidth;
+  	img.style.height = HEIGHT;
+  	img.style.position = 'absolute';
+  	img.style.top = '0px';
+  	img.style.left = '0px';
+
+  	img.style.width = availableWidth + 'px';
+  	img.style.height = HEIGHT + 'px';
+  	expression.node.appendChild(img);
+  });
+</script>
